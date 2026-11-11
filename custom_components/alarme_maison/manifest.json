@@ -1,0 +1,13 @@
+{
+  "domain": "alarme_maison",
+  "name": "Alarme Maison",
+  "version": "0.1.1",
+  "config_flow": true,
+  "iot_class": "local_polling",
+  "requirements": [],
+  "codeowners": [
+    "@stanthewizzard"
+  ],
+  "documentation": "https://github.com/stanthewizzard/hass-alarme-maison",
+  "issue_tracker": "https://github.com/stanthewizzard/hass-alarme-maison/issues"
+}
