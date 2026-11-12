@@ -1,7 +1,7 @@
 {
   "domain": "alarme_maison",
   "name": "Alarme Maison",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "config_flow": true,
   "iot_class": "local_polling",
   "requirements": [],

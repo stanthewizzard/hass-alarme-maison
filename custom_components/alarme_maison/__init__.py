@@ -27,6 +27,12 @@ class RouterCoordinator(DataUpdateCoordinator):
                     headers={'Authorization':'Bearer '+self.entry.data['token']}) as response:
                     response.raise_for_status()
                     result=await response.json()
+            # Different hosts can differ by milliseconds. Clamp a small future
+            # stamp to receipt time; never extend its 30-second lifetime.
+            received_at = time.time()
+            stamp = result.get('checked_at')
+            if isinstance(stamp, (int, float)) and 0 < stamp-received_at <= 1:
+                result = {**result, 'checked_at': received_at}
             if selected_source(result) is None:
                 raise ValueError('Routing not freshly confirmed')
             result['routing_retained'] = False

@@ -52,3 +52,7 @@ Pour une installation manuelle existante, conserver l’entrée, les entités et
 Conserve le dernier routage confirmé uniquement lors d’une erreur réseau et dans sa limite existante de 30 secondes. Une route inconnue reste indisponible immédiatement. Les commandes sont refusées tant que le routage est conservé ; aucune bascule automatique.
 
 Validation : tests hors ligne des interruptions, expirations et vrais changements ; redémarrage réel du serveur local sans transition d’état des deux alarmes HA et sans commande matérielle.
+
+## 0.1.3 — Horloges HA et serveur local
+
+Un horodatage de routage situé au plus une seconde dans le futur est ramené à l’heure de réception HA. Cela évite de rejeter un routage valide pour quelques millisecondes de décalage entre les deux machines, sans prolonger les 30 secondes de fraîcheur. Les routes anciennes, inconnues ou les écarts supérieurs à une seconde restent refusés.
