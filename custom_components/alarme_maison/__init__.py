@@ -1,5 +1,7 @@
 """Single alarm facade, selected by verified OPNsense routing via Docker."""
 import asyncio
+import time
+from aiohttp import ClientConnectionError
 from datetime import timedelta
 import logging
 from homeassistant.const import Platform
@@ -15,6 +17,7 @@ class RouterCoordinator(DataUpdateCoordinator):
         super().__init__(hass,logging.getLogger(__name__),name='Alarme Maison',update_interval=timedelta(seconds=10))
         self.entry=entry
         self.dispatcher=SingleDispatch()
+        self.expiry=None
 
     async def _async_update_data(self):
         try:
@@ -26,7 +29,16 @@ class RouterCoordinator(DataUpdateCoordinator):
                     result=await response.json()
             if selected_source(result) is None:
                 raise ValueError('Routing not freshly confirmed')
+            result['routing_retained'] = False
+            if self.expiry:
+                self.expiry.cancel()
+            self.expiry = self.hass.loop.call_later(
+                max(0, result['checked_at']+30-time.time()), self.async_update_listeners)
             return result
+        except (ClientConnectionError, TimeoutError) as exc:
+            if selected_source(self.data) is not None:
+                return {**self.data, 'routing_retained': True}
+            raise UpdateFailed('Mode local/cloud non confirmé par OPNsense') from exc
         except Exception as exc:
             raise UpdateFailed('Mode local/cloud non confirmé par OPNsense') from exc
 
@@ -40,6 +52,8 @@ async def async_setup_entry(hass,entry):
 
 async def async_unload_entry(hass,entry):
     if await hass.config_entries.async_unload_platforms(entry,PLATFORMS):
-        hass.data[DOMAIN].pop(entry.entry_id,None)
+        coordinator = hass.data[DOMAIN].pop(entry.entry_id,None)
+        if coordinator and coordinator.expiry:
+            coordinator.expiry.cancel()
         return True
     return False

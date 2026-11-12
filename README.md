@@ -46,3 +46,9 @@ Le composant ne modifie aucun fichier du cœur de HA ou des pilotes Diagral. Une
 Ajouter `stanthewizzard/hass-alarme-maison` comme dépôt personnalisé de type intégration. Sur HA 2026.11 et suivantes : Paramètres → Marketplace → Ajouter depuis un lien, puis Installer.
 
 Pour une installation manuelle existante, conserver l’entrée, les entités et les réglages. Le Marketplace reprend la gestion des mêmes fichiers ; ne pas supprimer puis recréer l’intégration. La branche principale est suivie pour les mises à jour. Elles sont proposées et restent à installer manuellement. Suivre l’éventuelle demande de redémarrage de HA. Aucune modification du cœur de HA.
+
+## 0.1.2 — Continuité pendant un redémarrage du serveur local
+
+Conserve le dernier routage confirmé uniquement lors d’une erreur réseau et dans sa limite existante de 30 secondes. Une route inconnue reste indisponible immédiatement. Les commandes sont refusées tant que le routage est conservé ; aucune bascule automatique.
+
+Validation : tests hors ligne des interruptions, expirations et vrais changements ; redémarrage réel du serveur local sans transition d’état des deux alarmes HA et sans commande matérielle.

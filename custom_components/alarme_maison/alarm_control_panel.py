@@ -47,7 +47,8 @@ class MaisonAlarm(CoordinatorEntity,AlarmControlPanelEntity):
     def extra_state_attributes(self):
         return {'pilote':(self.coordinator.data or {}).get('mode') if self.source else 'unknown',
                 'entite_source':self.source,'bascule_automatique':False,
-                'verification_routage_epoch':(self.coordinator.data or {}).get('checked_at')}
+                'verification_routage_epoch':(self.coordinator.data or {}).get('checked_at'),
+                'routage_conserve':(self.coordinator.data or {}).get('routing_retained',False)}
 
     async def async_added_to_hass(self):
         await super().async_added_to_hass()
@@ -60,6 +61,8 @@ class MaisonAlarm(CoordinatorEntity,AlarmControlPanelEntity):
     async def _send(self,service,code):
         async def resolve():
             await self.coordinator.async_refresh()
+            if (self.coordinator.data or {}).get('routing_retained'):
+                return None
             if service != 'alarm_disarm' and (not self.backend or self.backend.state not in VALID_STATES):
                 return None
             return self.source if self.available else None
